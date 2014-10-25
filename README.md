@@ -31,11 +31,30 @@ The core of QReddit the the ConnectionObject. Almost any function that requires 
 QReddit supports storing and switching between multiple users, but only allows one user to be logged in at a time.
 
 To login a new user,
-```
-redditObj.loginNewUser("username", "password")
+```javascript
+//The loginNewUser function returns a connection object.
+var loginConnObj = redditObj.loginNewUser("username", "password")
+loginConnObj.onSuccess.connect(function(){
+    redditObj.updateSubscribedArray() //Populates the user's list of subscribed subreddits
+    /* Refresh the home page display */
+})
+loginConnObj.onError.connect(function(errorMessage){
+    /* Show the login error to the user */
+})
 ```
 The new user will be set as the active user for the session. Any calls that require a logged in user can now be completed. The session ends when your app is closed. Later, if you need to log in the active user again, simply use
-```
+```javascript
 redditObj.loginActiveUser()
+```
+
+If you have multiple users saved, you can get a list of their usernames
+```javascript
+var usernameArray = redditObj.getUsers()
+var activeUsername = redditObj.getActiveUser()
+```
+
+and you can switch between them
+```javascript
+var switchConnObj = redditObj.switchActiveUser("newusername")
 ```
 
