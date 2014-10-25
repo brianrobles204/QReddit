@@ -43,6 +43,7 @@ loginConnObj.onError.connect(function(errorMessage){
        Perhaps the password is wrong, or there's no internet. */
 })
 ```
+
 The new user will be set as the active user for the session. Any calls that require a logged in user can now be completed. The session ends when your app is closed. Later, if you need to log in the active user again, simply use
 ```javascript
 redditObj.loginActiveUser()
@@ -68,7 +69,7 @@ var subsConnObj = redditObj.updateSubscribedArray()
 //Returns the stored array of strings containing the user's subscribed subreddits
 var subsArray = redditObj.getSubsArray()
 ```
-You can also pass the usernames of any stored user to access to the aforementioned functions to access their subreddits too.
+You can also pass the usernames of any stored user to the above functions to access their subreddits too.
 
 See `QReddit.js` for a complete list of user-related functions
 
@@ -82,6 +83,7 @@ property var redditNotifier: redditObj.notifier
 
 ActivityIndicator {
     ...
+    //Status of user authentication. May be 'none', 'loading', 'done' or 'error'
     running: redditNotifier.authStatus === "loading"
     ...
 }
@@ -91,8 +93,54 @@ ActivityIndicator {
 ToolbarButton {
     action: Action {
         ...
-        enabled: redditNotifier.isLoggedIn
+        enabled: !redditNotifier.isLoggedIn
         ...
     }
 }
+```
+
+See `NotifierObject.qml` for a complete list of properties
+
+####Subreddits
+
+You can create a Subreddit object via `getSubredditObj()`. With this, you can download the subreddit's posts.
+```javascript
+var subredditObj = redditObj.getSubredditObj("pics")
+var sort = "top"
+var paramObj = { t : "month",
+                 limit : 30 }
+
+/* Returns a ConnectionObject.
+   sort is one of (hot, new, top, controversial, rising).
+   paramObj is an optional object containing more parameters. See http://www.reddit.com/dev/api#section_listings
+   response is an array of PostObj */
+var subrConnObj = subredditObj.getPostsListing("top", paramObj)
+subrConnObj.onSuccess.connect(function(){
+    appendPosts(subrConnObj.response)
+})
+```
+
+For convenience, the user's current place in the subreddit listing is accounted automatically by the subredditObj. You may use `subredditObj.getMoreListing()` to load the subsequent set of posts.
+
+####Things
+
+Posts and comments are both `Things`, which means they can be commented on (a.k.a. replied to), upvoted, and downvoted. For example:
+```javascript
+postObj.comment("This is a comment to an existing post object")
+
+commentObj.upvote()
+commentObj.comment("This is a reply to a comment")
+```
+
+With any postObj (e.g. those returned from `subredditObj.getPostsListing()`), you can get the post's comments
+```
+/* Returns a ConnectionObject.
+   sort is one of (confidence, top, new, hot, controversial, old, random).
+   paramObj is an optional object containing more parameters. See http://www.reddit.com/dev/api#GET_comments_{article}
+   response is an array. The first element is an updated postObj, the second is an array of commentObj */
+var commentsConnObj = postObj.getComments("best", {})
+commentsConnObj.onSuccess.connect(function(){
+    updateCurrentPost(commentsConnObj.response[0]) //The first element is a postObj referencing the same post, but with updated information
+    updateComments(commentsConnObj.response[1]) 
+})
 ```
