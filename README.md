@@ -132,7 +132,7 @@ postObj.comment("This is a comment to an existing post object")
 commentObj.upvote()
 commentObj.comment("This is a reply to a comment")
 ```
-They also have a `data` property, which mirrors the JSON output `data` property; it is an object whose properties are all the information about the post/comment such as author, number of upvotes, etc. See https://github.com/reddit/reddit/wiki/JSON for a comprehensive list of properties.
+`Things` also have a `data` property, which mirrors the JSON output `data`; it is an object whose properties are all the information about the post/comment such as author, number of upvotes, etc. See https://github.com/reddit/reddit/wiki/JSON for a comprehensive list of properties.
 
 With any postObj (e.g. those returned from `subredditObj.getPostsListing()`), you can get the post's comments
 ```javascript
@@ -149,7 +149,7 @@ commentsConnObj.onSuccess.connect(function(){
 ```
 The paramObj is based on Reddit API. See http://www.reddit.com/dev/api#GET_comments_{article}
 
-The moreObj are special objects returned by `postObj.getComments()` that represent the "load more comments" seen on the original Reddit website. 
+The moreObj are special objects returned by `postObj.getComments()` that represent the "load more comments" seen on the original Reddit website. You may access the underlying comments using `moreObj.getMoreComments(sort)`.
 
 -------------
 
