@@ -141,7 +141,7 @@ With any postObj (e.g. those returned from `subredditObj.getPostsListing()`), yo
    paramObj is an optional object containing more parameters.
    response is an array. The first element is an updated postObj, 
      the second is an array of commentObj and moreObj */
-var commentsConnObj = postObj.getComments("best", {})
+var commentsConnObj = postObj.getComments("confidence", {})
 commentsConnObj.onSuccess.connect(function(){
     updateCurrentPost(commentsConnObj.response[0]) //The first element is a postObj referencing the same post, but with updated information
     updateComments(commentsConnObj.response[1]) 
