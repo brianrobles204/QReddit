@@ -39,7 +39,8 @@ loginConnObj.onSuccess.connect(function(){
     /* Refresh the home page display */
 })
 loginConnObj.onError.connect(function(errorMessage){
-    /* Show the login error to the user */
+    /* Show the login error to the user. 
+       Perhaps the password is wrong, or there's no internet. */
 })
 ```
 The new user will be set as the active user for the session. Any calls that require a logged in user can now be completed. The session ends when your app is closed. Later, if you need to log in the active user again, simply use
@@ -57,4 +58,16 @@ and you can switch between them
 ```javascript
 var switchConnObj = redditObj.switchActiveUser("newusername")
 ```
+This function will only be successful if the given username has already been stored (i.e. logged in before).
+
+You can also access the user's subreddits
+```javascript
+//Returns a connection object containing the active user's subscribed subreddits
+var subsConnObj = redditObj.updateSubscribedArray()
+
+//Returns the stored array of strings containing the user's subscribed subreddits
+var subsArray = redditObj.getSubsArray()
+```
+You can also pass the usernames of any stored user to access to the aforementioned functions to access their subreddits too.
+
 
