@@ -114,7 +114,7 @@ var paramObj = { t : "month",
    sort is one of (hot, new, top, controversial, rising).
    paramObj is an optional object containing more parameters.
    response is an array of PostObj */
-var subrConnObj = subredditObj.getPostsListing("top", paramObj)
+var subrConnObj = subredditObj.getPostsListing(sort, paramObj)
 subrConnObj.onSuccess.connect(function(){
     appendPosts(subrConnObj.response)
 })
