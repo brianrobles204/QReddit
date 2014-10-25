@@ -1,6 +1,6 @@
 #QReddit
 
-QML Library for Reddit.
+QML Library for [Reddit](http://www.reddit.com).
 
 QReddit uses javascript with QML objects to create a simple way to connect to Reddit from your QML app. It is designed to be event driven, using Qt signals to notify your app when the connection has succeeded (or failed). QReddit supports multiple users, downloading and voting on posts and comments. However, the library is still incomplete and lacks user profile and messaging, among other things.
 
@@ -120,17 +120,19 @@ subrConnObj.onSuccess.connect(function(){
 })
 ```
 The paramObj is based on Reddit API. See http://www.reddit.com/dev/api#section_listings
+
 For convenience, the user's current place in the subreddit listing is accounted automatically by the subredditObj. You may use `subredditObj.getMoreListing()` to load the subsequent set of posts.
 
 ####Things
 
-Posts and comments are both `Things`, which means they can be commented on (a.k.a. replied to), upvoted, and downvoted. For example:
+Posts and comments are both `Things`, which means they can be commented on (a.k.a. replied to), upvoted, and downvoted.
 ```javascript
 postObj.comment("This is a comment to an existing post object")
 
 commentObj.upvote()
 commentObj.comment("This is a reply to a comment")
 ```
+They also have a `data` property, which mirrors the JSON output `data` property; it is an object whose properties are all the information about the post/comment such as author, number of upvotes, etc. See https://github.com/reddit/reddit/wiki/JSON for a comprehensive list of properties.
 
 With any postObj (e.g. those returned from `subredditObj.getPostsListing()`), you can get the post's comments
 ```javascript
@@ -138,7 +140,7 @@ With any postObj (e.g. those returned from `subredditObj.getPostsListing()`), yo
    sort is one of (confidence, top, new, hot, controversial, old, random).
    paramObj is an optional object containing more parameters.
    response is an array. The first element is an updated postObj, 
-     the second is an array of commentObj */
+     the second is an array of commentObj and moreObj */
 var commentsConnObj = postObj.getComments("best", {})
 commentsConnObj.onSuccess.connect(function(){
     updateCurrentPost(commentsConnObj.response[0]) //The first element is a postObj referencing the same post, but with updated information
@@ -146,3 +148,11 @@ commentsConnObj.onSuccess.connect(function(){
 })
 ```
 The paramObj is based on Reddit API. See http://www.reddit.com/dev/api#GET_comments_{article}
+
+The moreObj are special objects returned by `postObj.getComments()` that represent the "load more comments" seen on the original Reddit website. 
+
+-------------
+
+###Authors
+
+Made by [Brian Robles](mailto:brianrobles204@gmail.com)
