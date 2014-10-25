@@ -32,7 +32,7 @@ QReddit supports storing and switching between multiple users, but only allows o
 
 To login a new user,
 ```javascript
-//The loginNewUser function returns a connection object.
+//The loginNewUser function returns a ConnectionObject.
 var loginConnObj = redditObj.loginNewUser("username", "password")
 loginConnObj.onSuccess.connect(function(){
     redditObj.updateSubscribedArray() //Populates the user's list of subscribed subreddits
@@ -63,7 +63,7 @@ This function will only be successful if the given username has already been sto
 
 You can also access the user's subreddits
 ```javascript
-//Returns a connection object containing the active user's subscribed subreddits
+//Returns a ConnectionObject with a response containing the active user's subscribed subreddits
 var subsConnObj = redditObj.updateSubscribedArray()
 
 //Returns the stored array of strings containing the user's subscribed subreddits
@@ -112,14 +112,14 @@ var paramObj = { t : "month",
 
 /* Returns a ConnectionObject.
    sort is one of (hot, new, top, controversial, rising).
-   paramObj is an optional object containing more parameters. See http://www.reddit.com/dev/api#section_listings
+   paramObj is an optional object containing more parameters.
    response is an array of PostObj */
 var subrConnObj = subredditObj.getPostsListing("top", paramObj)
 subrConnObj.onSuccess.connect(function(){
     appendPosts(subrConnObj.response)
 })
 ```
-
+The paramObj is based on Reddit API. See http://www.reddit.com/dev/api#section_listings
 For convenience, the user's current place in the subreddit listing is accounted automatically by the subredditObj. You may use `subredditObj.getMoreListing()` to load the subsequent set of posts.
 
 ####Things
@@ -133,14 +133,16 @@ commentObj.comment("This is a reply to a comment")
 ```
 
 With any postObj (e.g. those returned from `subredditObj.getPostsListing()`), you can get the post's comments
-```
+```javascript
 /* Returns a ConnectionObject.
    sort is one of (confidence, top, new, hot, controversial, old, random).
-   paramObj is an optional object containing more parameters. See http://www.reddit.com/dev/api#GET_comments_{article}
-   response is an array. The first element is an updated postObj, the second is an array of commentObj */
+   paramObj is an optional object containing more parameters.
+   response is an array. The first element is an updated postObj, 
+     the second is an array of commentObj */
 var commentsConnObj = postObj.getComments("best", {})
 commentsConnObj.onSuccess.connect(function(){
     updateCurrentPost(commentsConnObj.response[0]) //The first element is a postObj referencing the same post, but with updated information
     updateComments(commentsConnObj.response[1]) 
 })
 ```
+The paramObj is based on Reddit API. See http://www.reddit.com/dev/api#GET_comments_{article}
