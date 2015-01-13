@@ -2,31 +2,38 @@ import QtQuick 2.0
 import "QReddit.js" as QReddit
 
 ListModel {
-    id: postCommentsListModel
+    id: moreCommentsListModel
 
-    property string post
+    property var post
+    property var more
+    property string link
 
     property bool loaded
     signal loadFinished
 
     property var redditObj: new QReddit.QReddit("QReddit", "qreddit")
     property var postObj: new QReddit.PostObj(redditObj, {'data': {'id': post}})
+    property var moreObj: new QReddit.MoreObj(redditObj, {'data': {'parent_id': postObj.data.name, 'children': more}}, link)
 
     onPostChanged: {
         console.warn('Changing post on a PostCommentsListModel is not supported')
     }
 
-    Component.onCompleted: load()
+    onMoreChanged: {
+        console.warn('Changing comments on a MoreCommentsListModel is not supported')
+    }
+
+    Component.onCompleted: { console.log('Link: '+link); load(); }
 
     function load() {
-        if (postObj == undefined) {
-            console.log('postObj is not defined, aborting comments load')
+        if (moreObj == undefined) {
+            console.log('moreObj is not defined, aborting comments load')
             return
         }
 
-        var connObj = postObj.getComments('hot', {})
-        connObj.onSuccess.connect(function(response) {
-            addComments(connObj.response[1], 0);
+        var connObj = moreObj.getMoreComments('hot')
+        connObj.onSuccess.connect(function() {
+            addComments(connObj.response, 0);
         });
     }
 
@@ -37,7 +44,7 @@ ListModel {
             if (commentObj.kind == "more" && commentObj.data.count < 1) return
 
             commentObj['depth'] = depth
-            postCommentsListModel.append(commentObj);
+            moreCommentsListModel.append(commentObj);
 
             if (commentObj.data.replies !== undefined && commentObj.data.replies.data !== undefined) {
                 addComments(commentObj.data.replies.data.children, depth+1)
