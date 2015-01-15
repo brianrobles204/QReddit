@@ -88,6 +88,12 @@ var CommentsSort = {
     Random: 'random'
 };
 
+var MessagesSort = {
+    Inbox: 'inbox',
+    Unread: 'unread',
+    Sent: 'sent'
+};
+
 var TimeFilter = {
     Hour: 'hour',
     Day: 'day',
@@ -562,13 +568,13 @@ var MoreObj = function(reddit, thing, link) {
         var moreConnObj = reddit.getAPIConnection('morechildren', paramObj);
         var that = this;
         moreConnObj.onConnection.connect(function(response){
+
             //The returned response is flat. Here we turn it into a tree before translating.
             var flatResponses = response.json.data.things;
             var nodeList = {};
 
-            nodeList[that.data.parent_id] = { data: { 'id': that.data.parent_id, 'replies': { 'data': { 'children': [] } } } };
+            nodeList[that.data.parent_id] = { 'data': { 'id': that.data.parent_id, 'replies': { 'data': { 'children': [] } } } };
             for(var i = 0; i < flatResponses.length; i++) {
-
                 if(flatResponses[i].data.name === "t1__") continue; //Bug with Reddit? There is an occassional empty "more" object
 
                 nodeList[flatResponses[i].data.name] = flatResponses[i];
@@ -576,7 +582,7 @@ var MoreObj = function(reddit, thing, link) {
                     nodeList[flatResponses[i].data.name].data.replies = { 'data': { 'children': [] } };
                 }
 
-                nodeList[flatResponses[i].data.parent_id].data.replies.data.children.push(nodeList[flatResponses[i].data.name]);
+                nodeList[that.data.parent_id].data.replies.data.children.push(nodeList[flatResponses[i].data.name]);
             }
             var treeResponses = nodeList[that.data.parent_id].data.replies.data.children
 
@@ -588,8 +594,53 @@ var MoreObj = function(reddit, thing, link) {
     }
 }
 
+var MessageObj = function(reddit, message) {
 
+    ThingObj.apply(this, arguments);
+
+    this.toString = function() {
+        return "[object MessageObj]"
+    }
+}
 var UserObj = function(reddit, username) {
+
+    this.updateUnread = function() {
+        var connMsgObj = reddit.getAPIConnection("message unread", {'limit': 1});
+        connMsgObj.onConnection.connect(function(response){
+            if (response.data.children.length > 0) {
+                reddit.notifier.hasUnreadMessages = true
+            } else {
+                reddit.notifier.hasUnreadMessages = false
+            }
+        });
+
+    }
+
+    function getMessageObjArray(msgArray) {
+        var msgObjArray = [];
+        for(var i = 0; i < msgArray.length; i++) {
+            msgObjArray.push(new MessageObj(reddit, msgArray[i]));
+        }
+        return msgObjArray;
+    }
+
+    this.getMessageListing = function(where, paramObj) {
+        //Returns a Connection object. Has a response property containing the Messages Array.
+        var apiCommand = "message "+where;
+        paramObj = paramObj || {};
+        paramObj.limit = paramObj.limit || 25;
+
+        var connMsgObj = reddit.getAPIConnection(apiCommand, paramObj);
+        var that = this;
+
+        connMsgObj.onConnection.connect(function(response){
+            var msgObjArray = getMessageObjArray(response.data.children)
+            connMsgObj.response = msgObjArray;
+            connMsgObj.success();
+        });
+
+        return connMsgObj;
+    }
 
     this.toString = function() {
         return "[object UserObject]"
